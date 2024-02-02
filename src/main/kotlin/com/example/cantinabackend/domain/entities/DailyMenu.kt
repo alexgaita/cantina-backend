@@ -15,7 +15,7 @@ class DailyMenu(
     @Column
     val lastPosibleDay: LocalDate,
 
-    @ManyToMany
+    @ManyToMany(cascade = [CascadeType.ALL])
     @JoinTable(
         name = "daily_menu_containers",
         joinColumns = [JoinColumn(name = "daily_menu_id", referencedColumnName = "id")],

@@ -1,5 +1,6 @@
 package com.example.cantinabackend.domain.repositories
 
+import com.example.cantinabackend.domain.entities.Container
 import com.example.cantinabackend.domain.entities.MenuItem
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -14,5 +15,10 @@ interface MenuItemRepository : JpaRepository<MenuItem, String> {
         nativeQuery = true
     )
     fun findItemsForDay(day: Int, currentDate: LocalDate): List<MenuItem>
+
+    @Query(
+        """SELECT m.container FROM MenuItem m WHERE m.name = :name"""
+    )
+    fun findContainersByMenuItemName(name: String): Container?
 
 }

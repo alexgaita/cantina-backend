@@ -1,6 +1,7 @@
 package com.example.cantinabackend.web
 
-import com.example.cantinabackend.domain.entities.MenuItem
+import com.example.cantinabackend.domain.dtos.MenuDto
+import com.example.cantinabackend.domain.dtos.MissingContainersDto
 import com.example.cantinabackend.domain.enums.WeekDay
 import com.example.cantinabackend.domain.repositories.DailyMenuRepository
 import com.example.cantinabackend.domain.repositories.MenuItemRepository
@@ -8,7 +9,6 @@ import com.example.cantinabackend.services.XCelReaderService
 import com.example.cantinabackend.web.swagger.IMenuController
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.poi.ss.usermodel.WorkbookFactory
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -27,7 +27,7 @@ class MenuController(
 ) : IMenuController {
 
     @GetMapping("/menu")
-    fun getMenu(): List<MenuItem> {
+    fun getMenu(): MenuDto {
 
         var today = LocalDate.now().plusDays(1)
         if (today.dayOfWeek.value in listOf(6, 7)) {
@@ -39,23 +39,17 @@ class MenuController(
 
         val menuItems = menuItemRepository.findItemsForDay(todayAsNumber, today)
 
-        return menuItems
+        val dailyMenu = dailyMenuRepository.findMenusByDay(todayAsNumber, today)
+
+        return MenuDto(dailyMenu, menuItems)
     }
 
     @PostMapping("/upload", consumes = ["multipart/form-data"])
-    override fun handleFileUpload(@RequestParam("file") file: MultipartFile): ResponseEntity<String> {
-        try {
-            // Read the Excel file using Apache POI
-            val workbook = WorkbookFactory.create(file.inputStream)
+    override fun handleFileUpload(@RequestParam("file") file: MultipartFile): MissingContainersDto {
 
-            xCelReaderService.readMenu(workbook)
-            // Do something with the workbook, e.g., process the data
+        // Read the Excel file using Apache POI
+        val workbook = WorkbookFactory.create(file.inputStream)
 
-            // Return a success response
-            return ResponseEntity.status(200).body("File uploaded successfully!")
-        } catch (e: Exception) {
-            // Handle exceptions, e.g., file format issues, processing errors
-            return ResponseEntity.status(500).body("Error uploading the file: ${e.message}")
-        }
+        return xCelReaderService.readMenu(workbook)
     }
 }
