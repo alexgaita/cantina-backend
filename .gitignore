@@ -1,0 +1,24 @@
+
+### Folders ###
+.gradle
+build
+bin
+out
+/dependencies/.env
+
+!gradle/wrapper/gradle-wrapper.jar
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### MacOS ###
+.DS_Store
+
+### VS Code ###
+.vscode/
+
+### Node ###
+node_modules
