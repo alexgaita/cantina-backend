@@ -17,8 +17,8 @@ interface MenuItemRepository : JpaRepository<MenuItem, String> {
     fun findItemsForDay(day: Int, currentDate: LocalDate): List<MenuItem>
 
     @Query(
-        """SELECT m.container FROM MenuItem m WHERE m.name = :name"""
+        """SELECT m.containers FROM MenuItem m WHERE m.name = :name"""
     )
-    fun findContainersByMenuItemName(name: String): Container?
+    fun findContainersByMenuItemName(name: String): List<Container>
 
 }

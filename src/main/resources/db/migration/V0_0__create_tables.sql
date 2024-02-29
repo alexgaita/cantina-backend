@@ -7,15 +7,13 @@ CREATE TABLE IF NOT EXISTS container
 
 CREATE TABLE IF NOT EXISTS menu_item
 (
-    name              varchar(50)   NOT NULL PRIMARY KEY,
+    name              varchar(200)  NOT NULL PRIMARY KEY,
     serving_size      varchar(10)   NOT NULL DEFAULT 'g',
     normal_price      DECIMAL(4, 2) NOT NULL DEFAULT 0,
     discounted_price  DECIMAL(4, 2) NOT NULL DEFAULT 0,
     recurring_days    INTEGER       NOT NULL DEFAULT 0,
     first_posible_day date          NOT NULL,
     last_posible_day  date          NOT NULL,
-    container_id      varchar(50),
-    FOREIGN KEY (container_id) REFERENCES container (name)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = UTF8MB4;
 
@@ -35,6 +33,17 @@ CREATE TABLE IF NOT EXISTS daily_menu_containers
     quantity      int         NOT NULL DEFAULT 1,
     PRIMARY KEY (daily_menu_id, container_id),
     FOREIGN KEY (daily_menu_id) REFERENCES daily_menu (id),
+    FOREIGN KEY (container_id) REFERENCES container (name)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = UTF8MB4;
+
+CREATE TABLE IF NOT EXISTS menu_item_containers
+(
+    menu_item_id varchar(200) NOT NULL,
+    container_id varchar(50)  NOT NULL,
+    quantity     int          NOT NULL DEFAULT 1,
+    PRIMARY KEY (menu_item_id, container_id),
+    FOREIGN KEY (menu_item_id) REFERENCES menu_item (name),
     FOREIGN KEY (container_id) REFERENCES container (name)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = UTF8MB4;

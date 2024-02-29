@@ -18,9 +18,13 @@ class MenuItem(
     @Column(columnDefinition = "DECIMAL(4,2)")
     var discountedPrice: Double,
 
-    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @JoinColumn(name = "container_id", referencedColumnName = "name")
-    var container: Container? = null,
+    @ManyToMany(cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "menu_item_containers",
+        joinColumns = [JoinColumn(name = "menu_item_id", referencedColumnName = "name")],
+        inverseJoinColumns = [JoinColumn(name = "container_id", referencedColumnName = "name")]
+    )
+    val containers: MutableList<Container> = mutableListOf(),
 
     @Column
     var recurringDays: Int,

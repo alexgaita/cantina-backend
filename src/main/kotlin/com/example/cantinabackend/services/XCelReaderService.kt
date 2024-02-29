@@ -42,7 +42,10 @@ class XCelReaderService(
 
             dailyMenuList.addAll(calculateDailyMenuItems(sheet, day, endDate))
             menuItemsList.addAll(calculateMenuItems(sheet, day, endDate))
-            containerList.addAll(calculateContainers(sheet))
+
+            if (day == 0) {
+                containerList.addAll(calculateContainers(sheet))
+            }
         }
 
         dailyMenuRepository.deleteByLastDay(menuInterval!!.second)
@@ -55,7 +58,7 @@ class XCelReaderService(
 
         containerRepository.saveAll(containerList.distinctBy { it.name })
 
-        val itemsWithoutContainers = savedItems.filter { it.container == null }
+        val itemsWithoutContainers = savedItems.filter { it.containers.isEmpty() }
         val containers = containerRepository.findAll()
         val dailyMenusWithoutContainers = dailyMenuWithContainers.filter { it.containers.isEmpty() }
 
@@ -68,8 +71,10 @@ class XCelReaderService(
 
             val possibleContainers = mutableListOf<Container>()
             dailyMenu.description.split("/").forEach { menuItemName ->
-                menuItemsByName[menuItemName]?.container?.let { container ->
-                    possibleContainers.add(container)
+                menuItemsByName[menuItemName]?.containers.let { containers ->
+                    if (containers != null) {
+                        possibleContainers.addAll(containers)
+                    }
                 }
             }
             dailyMenu.containers.addAll(possibleContainers.distinctBy { it.name })
@@ -153,30 +158,73 @@ class XCelReaderService(
         sheet: Sheet,
         day: Int,
         endDate: LocalDate,
-    ): List<MenuItem> = (9..27).toList().map { rowNumber ->
-        val row = sheet.getRow(rowNumber)
+    ): List<MenuItem> {
 
-        val itemName = row.getCell(1).stringCellValue
-        val discountedPrice = handleGetPrice(row.getCell(2))
-        val normalPrice = handleGetPrice(row.getCell(3))
-        val servingSize = row.getCell(4).stringCellValue
+        var skipNextRow = false
 
-        MenuItem(
-            name = itemName,
-            servingSize = servingSize,
-            normalPrice = normalPrice,
-            discountedPrice = discountedPrice,
-            container = null,
-            day = day,
-            firstPosibleDay = LocalDate.now(), // TODO remove this field if not needed
-            lastPosibleDay = endDate,
-            recurringDays = 0
-        )
+        val menuItems = mutableListOf<MenuItem>()
+
+        (9..28).toList().forEach { rowNumber ->
+            val row = sheet.getRow(rowNumber)
+            val nextRow = sheet.getRow(rowNumber + 1)
+
+            if (skipNextRow) {
+                skipNextRow = false
+                return@forEach
+            }
+
+            if (rowNumber != 28 && nextRow.getCell(3).numericCellValue == 0.0) {
+                skipNextRow = true
+                val itemName =
+                    (row.getCell(1).stringCellValue + " " + nextRow.getCell(1).stringCellValue).replace(
+                        "\\s+".toRegex(),
+                        " "
+                    )
+                val discountedPriceTeacher = handleGetPrice(row.getCell(3))
+                val normalPrice = handleGetPrice(row.getCell(4))
+                val servingSize = row.getCell(5).stringCellValue
+
+                menuItems.add(
+                    MenuItem(
+                        name = itemName,
+                        servingSize = servingSize,
+                        normalPrice = normalPrice,
+                        discountedPrice = discountedPriceTeacher,
+                        day = day,
+                        firstPosibleDay = LocalDate.now(), // TODO remove this field if not needed
+                        lastPosibleDay = endDate,
+                        recurringDays = 0
+                    )
+                )
+                return@forEach
+            }
+
+            val itemName = row.getCell(1).stringCellValue
+//       TODO  val discountedPriceStudent = handleGetPrice(row.getCell(2))
+            val discountedPriceTeacher = handleGetPrice(row.getCell(3))
+            val normalPrice = handleGetPrice(row.getCell(4))
+            val servingSize = row.getCell(5).stringCellValue
+
+            menuItems.add(
+                MenuItem(
+                    name = itemName,
+                    servingSize = servingSize,
+                    normalPrice = normalPrice,
+                    discountedPrice = discountedPriceTeacher,
+                    day = day,
+                    firstPosibleDay = LocalDate.now(), // TODO remove this field if not needed
+                    lastPosibleDay = endDate,
+                    recurringDays = 0
+                )
+            )
+        }
+
+        return menuItems
     }
 
     private fun calculateContainers(
         sheet: Sheet
-    ): List<Container> = (30..35).toList().map { rowNumber ->
+    ): List<Container> = (31..36).toList().map { rowNumber ->
         val row = sheet.getRow(rowNumber)
 
         val containerName = row.getCell(1).stringCellValue
@@ -201,7 +249,7 @@ class XCelReaderService(
                     servingSize = firstItem.servingSize,
                     normalPrice = firstItem.normalPrice,
                     discountedPrice = firstItem.discountedPrice,
-                    container = menuItemRepository.findContainersByMenuItemName(keyValuePair.key),
+                    containers = menuItemRepository.findContainersByMenuItemName(keyValuePair.key).toMutableList(),
                     day = null,
                     firstPosibleDay = firstItem.firstPosibleDay,
                     lastPosibleDay = firstItem.lastPosibleDay,
