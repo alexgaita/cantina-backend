@@ -1,5 +1,7 @@
 package com.example.cantinabackend.web
 
+import com.example.cantinabackend.config.annotations.Permission
+import com.example.cantinabackend.config.annotations.RequiredPermissions
 import com.example.cantinabackend.domain.dtos.MenuDto
 import com.example.cantinabackend.domain.dtos.MissingContainersDto
 import com.example.cantinabackend.domain.enums.WeekDay
@@ -27,7 +29,8 @@ class MenuController(
 ) : IMenuController {
 
     @GetMapping("/menu")
-    fun getMenu(): MenuDto {
+    @RequiredPermissions([Permission.MISSING_PERMISSION])
+    override fun getMenu(): MenuDto {
 
         var today = LocalDate.now().plusDays(1)
         if (today.dayOfWeek.value in listOf(6, 7)) {
@@ -45,6 +48,7 @@ class MenuController(
     }
 
     @PostMapping("/upload", consumes = ["multipart/form-data"])
+    @RequiredPermissions([Permission.ADMIN])
     override fun handleFileUpload(@RequestParam("file") file: MultipartFile): MissingContainersDto {
 
         // Read the Excel file using Apache POI
