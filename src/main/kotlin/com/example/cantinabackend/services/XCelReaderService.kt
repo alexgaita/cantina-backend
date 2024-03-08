@@ -2,11 +2,9 @@ package com.example.cantinabackend.services
 
 import com.example.cantinabackend.domain.dtos.MissingContainersDto
 import com.example.cantinabackend.domain.entities.Container
-import com.example.cantinabackend.domain.entities.DailyMenu
+import com.example.cantinabackend.domain.entities.ItemType
 import com.example.cantinabackend.domain.entities.MenuItem
-import com.example.cantinabackend.domain.enums.WeekDay
 import com.example.cantinabackend.domain.repositories.ContainerRepository
-import com.example.cantinabackend.domain.repositories.DailyMenuRepository
 import com.example.cantinabackend.domain.repositories.MenuItemRepository
 import jakarta.transaction.Transactional
 import org.apache.poi.ss.usermodel.Cell
@@ -21,7 +19,6 @@ import java.time.format.DateTimeFormatter
 class XCelReaderService(
     private val menuItemRepository: MenuItemRepository,
     private val containerRepository: ContainerRepository,
-    private val dailyMenuRepository: DailyMenuRepository
 ) {
 
     @Transactional
@@ -30,7 +27,7 @@ class XCelReaderService(
         var menuInterval: Pair<LocalDate, LocalDate>? = null
         val menuItemsList = mutableListOf<MenuItem>()
         val containerList = mutableListOf<Container>()
-        val dailyMenuList = mutableListOf<DailyMenu>()
+        val dailyMenuList = mutableListOf<MenuItem>()
 
         for (day in 0..4) {
             val sheet = workbook.getSheetAt(day)
@@ -40,46 +37,21 @@ class XCelReaderService(
 
             val (startDate, endDate) = menuInterval
 
-            dailyMenuList.addAll(calculateDailyMenuItems(sheet, day, endDate))
-            menuItemsList.addAll(calculateMenuItems(sheet, day, endDate))
+            dailyMenuList.addAll(calculateDailyMenuItems(sheet, day, startDate, endDate))
+            menuItemsList.addAll(calculateMenuItems(sheet, day, startDate, endDate))
 
             if (day == 0) {
                 containerList.addAll(calculateContainers(sheet))
             }
         }
 
-        dailyMenuRepository.deleteByLastDay(menuInterval!!.second)
-
-        val savedItems = saveMenuItems(menuItemsList)
-
-        val dailyMenuWithContainers = findAllContainersForDailyMenu(savedItems, dailyMenuList)
-
-        dailyMenuRepository.saveAll(dailyMenuWithContainers)
-
+        val savedItems = saveMenuItems(menuItemsList + dailyMenuList)
         containerRepository.saveAll(containerList.distinctBy { it.name })
 
         val itemsWithoutContainers = savedItems.filter { it.containers.isEmpty() }
         val containers = containerRepository.findAll()
-        val dailyMenusWithoutContainers = dailyMenuWithContainers.filter { it.containers.isEmpty() }
 
-        return MissingContainersDto(containers, itemsWithoutContainers, dailyMenusWithoutContainers)
-    }
-
-    private fun findAllContainersForDailyMenu(menuItems: List<MenuItem>, dailyMenus: List<DailyMenu>): List<DailyMenu> {
-        val menuItemsByName = menuItems.associateBy { it.name }
-        dailyMenus.forEach { dailyMenu ->
-
-            val possibleContainers = mutableListOf<Container>()
-            dailyMenu.description.split("/").forEach { menuItemName ->
-                menuItemsByName[menuItemName]?.containers.let { containers ->
-                    if (containers != null) {
-                        possibleContainers.addAll(containers)
-                    }
-                }
-            }
-            dailyMenu.containers.addAll(possibleContainers.distinctBy { it.name })
-        }
-        return dailyMenus
+        return MissingContainersDto(containers, itemsWithoutContainers)
     }
 
     private fun readMenuInterval(sheet: Sheet): Pair<LocalDate, LocalDate> {
@@ -124,11 +96,12 @@ class XCelReaderService(
     private fun calculateDailyMenuItems(
         sheet: Sheet,
         day: Int,
+        startDate: LocalDate,
         endDate: LocalDate,
-    ): List<DailyMenu> {
+    ): List<MenuItem> {
 
         val menuColumns = listOf(0, 2)
-        val dailyMenuItems = mutableListOf<DailyMenu>()
+        val dailyMenuItems = mutableListOf<MenuItem>()
 
         for (menuColumn in menuColumns) {
 
@@ -143,10 +116,15 @@ class XCelReaderService(
             }
 
             dailyMenuItems.add(
-                DailyMenu(
-                    description = menuDescription,
-                    recurringDays = WeekDay.entries[day].value,
-                    lastPosibleDay = endDate
+                MenuItem(
+                    name = menuDescription,
+                    day = day,
+                    discountedPrice = 0.0,
+                    normalPrice = 0.0,
+                    servingSize = "",
+                    type = ItemType.DAILY_MENU,
+                    firstPossibleDay = startDate,
+                    lastPossibleDay = endDate
                 )
             )
         }
@@ -157,6 +135,7 @@ class XCelReaderService(
     private fun calculateMenuItems(
         sheet: Sheet,
         day: Int,
+        startDate: LocalDate,
         endDate: LocalDate,
     ): List<MenuItem> {
 
@@ -186,35 +165,35 @@ class XCelReaderService(
 
                 menuItems.add(
                     MenuItem(
-                        name = itemName,
+                        name = itemName.trimEnd().trimStart(),
                         servingSize = servingSize,
                         normalPrice = normalPrice,
                         discountedPrice = discountedPriceTeacher,
                         day = day,
-                        firstPosibleDay = LocalDate.now(), // TODO remove this field if not needed
-                        lastPosibleDay = endDate,
-                        recurringDays = 0
+                        firstPossibleDay = startDate, // TODO remove this field if not needed
+                        lastPossibleDay = endDate,
+                        recurringDays = 0,
                     )
                 )
                 return@forEach
             }
 
             val itemName = row.getCell(1).stringCellValue
-//       TODO  val discountedPriceStudent = handleGetPrice(row.getCell(2))
             val discountedPriceTeacher = handleGetPrice(row.getCell(3))
             val normalPrice = handleGetPrice(row.getCell(4))
             val servingSize = row.getCell(5).stringCellValue
 
+
             menuItems.add(
                 MenuItem(
-                    name = itemName,
+                    name = itemName.trimEnd().trimStart(),
                     servingSize = servingSize,
                     normalPrice = normalPrice,
                     discountedPrice = discountedPriceTeacher,
                     day = day,
-                    firstPosibleDay = LocalDate.now(), // TODO remove this field if not needed
-                    lastPosibleDay = endDate,
-                    recurringDays = 0
+                    firstPossibleDay = startDate,
+                    lastPossibleDay = endDate,
+                    recurringDays = 0,
                 )
             )
         }
@@ -239,6 +218,8 @@ class XCelReaderService(
     @Transactional
     fun saveMenuItems(menuItems: List<MenuItem>): List<MenuItem> {
 
+        val actualItems = menuItemRepository.findAllById(menuItems.map { it.name }).associateBy { it.name }
+
         val menuItemsByName = menuItems.groupBy { it.name }.mapValues { keyValuePair ->
             keyValuePair.value.let { menuItems ->
                 val firstItem = menuItems.first()
@@ -251,9 +232,10 @@ class XCelReaderService(
                     discountedPrice = firstItem.discountedPrice,
                     containers = menuItemRepository.findContainersByMenuItemName(keyValuePair.key).toMutableList(),
                     day = null,
-                    firstPosibleDay = firstItem.firstPosibleDay,
-                    lastPosibleDay = firstItem.lastPosibleDay,
-                    recurringDays = recurringDays
+                    firstPossibleDay = firstItem.firstPossibleDay,
+                    lastPossibleDay = firstItem.lastPossibleDay,
+                    recurringDays = recurringDays,
+                    type = actualItems[keyValuePair.key]?.type,
                 )
             }
         }

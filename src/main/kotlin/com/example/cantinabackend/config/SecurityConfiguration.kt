@@ -26,6 +26,7 @@ class SecurityConfig {
                 authorize("/api-docs/**", permitAll)
                 authorize(anyRequest, authenticated)
             }
+//            csrf { disable() }
             oauth2ResourceServer {
                 jwt { }
             }

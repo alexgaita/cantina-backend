@@ -27,6 +27,15 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  cloud:
+    azure:
+      storage:
+        account-name: licentagaitacantina
+        account-key: a0VpCpfFKeSaXQvMAFR8oBZGYSiPWg9IXpAh0N5Dp8cxA+dSHGy7jD0qIiuiF5yHau9+UPQpmRqY+ASttntY+Q==
+        blob:
+          container-name: menuimage
+
+  
   security:
     oauth2:
       resourceserver:
@@ -36,6 +45,11 @@ spring:
 server:
   servlet:
     context-path: /api
+    encoding:
+      charset: UTF-8
+      force-response: true
+
+
 
 springdoc:
   packagesToScan: com.example.cantinabackend.web

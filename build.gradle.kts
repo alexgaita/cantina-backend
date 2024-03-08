@@ -24,6 +24,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-web")
+
+    implementation("com.azure.spring:spring-cloud-azure-dependencies:5.10.0")
+    implementation("com.azure.spring:spring-cloud-azure-starter-storage-blob:5.10.0")
+
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

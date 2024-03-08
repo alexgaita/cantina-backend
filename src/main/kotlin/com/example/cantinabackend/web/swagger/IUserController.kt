@@ -1,8 +1,8 @@
 package com.example.cantinabackend.web.swagger
 
-import com.example.cantinabackend.domain.dtos.MenuItemDto
-import com.example.cantinabackend.domain.dtos.MenuListDto
-import com.example.cantinabackend.domain.dtos.MissingContainersDto
+import com.example.cantinabackend.domain.dtos.PermissionDto
+import com.example.cantinabackend.domain.dtos.UserChangeDto
+import com.example.cantinabackend.domain.entities.User
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -10,35 +10,34 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.bind.annotation.RequestBody
 
-@Tag(name = "Menu Controller")
-interface IMenuController {
+@Tag(name = "User Controller")
+interface IUserController {
 
     @Operation(
-        summary = "Fetch the menu for the current day",
+        summary = "Fetch the currently logged in user",
         security = [SecurityRequirement(name = "bearer-key")],
     )
     @ApiResponses(
         ApiResponse(
             responseCode = "200",
-            description = "Menu successfully received.",
+            description = "User successfully received.",
             content = [
                 Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = Schema(
-                        implementation = MenuListDto::class
+                        implementation = User::class
                     )
                 )]
         )
     )
-    fun getMenu(): MenuListDto
+    fun getUser(): User
 
     @Operation(
-        summary = "Upload menu file from excel",
+        summary = "Fetch the permissions of the currently logged in user",
         security = [SecurityRequirement(name = "bearer-key")],
     )
     @ApiResponses(
@@ -48,40 +47,21 @@ interface IMenuController {
                 Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = Schema(
-                        implementation = MissingContainersDto::class
+                        implementation = PermissionDto::class
                     )
                 )]
         )
     )
-    fun handleFileUpload(@RequestParam("file") file: MultipartFile): MissingContainersDto
+    fun getUserPermissions(): PermissionDto
 
     @Operation(
-        summary = "Fetch the menu by id",
-        security = [SecurityRequirement(name = "bearer-key")],
-    )
-    @ApiResponses(
-        ApiResponse(
-            responseCode = "200",
-            description = "Menu successfully received.",
-            content = [
-                Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = Schema(
-                        implementation = MenuItemDto::class
-                    )
-                )]
-        )
-    )
-    fun getMenuById(@PathVariable id: String): MenuItemDto
-
-    @Operation(
-        summary = "Edit Menu Item",
+        summary = "Change the currently logged in user",
         security = [SecurityRequirement(name = "bearer-key")]
     )
     @ApiResponses(
         ApiResponse(
             responseCode = "200",
-            description = "Menu Item successfully edited.",
+            description = "User successfully changed.",
             content = [
                 Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -91,5 +71,5 @@ interface IMenuController {
                 )]
         )
     )
-    fun changeMenuItem(menuItemDto: MenuItemDto)
+    fun changeUser(@RequestBody @Valid userChanges: UserChangeDto): Unit
 }

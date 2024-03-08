@@ -11,7 +11,7 @@ import java.time.LocalDate
 interface MenuItemRepository : JpaRepository<MenuItem, String> {
 
     @Query(
-        "SELECT * FROM menu_item  WHERE (recurring_days & :day) > 0 AND last_posible_day >= :currentDate",
+        "SELECT * FROM menu_item  WHERE (recurring_days & :day) > 0 AND last_possible_day >= :currentDate",
         nativeQuery = true
     )
     fun findItemsForDay(day: Int, currentDate: LocalDate): List<MenuItem>

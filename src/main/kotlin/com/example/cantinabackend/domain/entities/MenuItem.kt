@@ -4,6 +4,15 @@ import com.example.cantinabackend.domain.enums.WeekDay
 import jakarta.persistence.*
 import java.time.LocalDate
 
+enum class ItemType {
+    DAILY_MENU,
+    SOUP,
+    MAIN_COURSE,
+    GARNISH,
+    DESSERT,
+    EXTRA
+}
+
 @Entity
 class MenuItem(
     @Id
@@ -18,26 +27,46 @@ class MenuItem(
     @Column(columnDefinition = "DECIMAL(4,2)")
     var discountedPrice: Double,
 
-    @ManyToMany(cascade = [CascadeType.ALL])
+    @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinTable(
         name = "menu_item_containers",
         joinColumns = [JoinColumn(name = "menu_item_id", referencedColumnName = "name")],
         inverseJoinColumns = [JoinColumn(name = "container_id", referencedColumnName = "name")]
     )
-    val containers: MutableList<Container> = mutableListOf(),
+    var containers: MutableList<Container> = mutableListOf(),
 
     @Column
-    var recurringDays: Int,
+    var recurringDays: Int = 0,
 
     @Column
-    var firstPosibleDay: LocalDate,
+    var firstPossibleDay: LocalDate,
 
     @Column
-    var lastPosibleDay: LocalDate,
+    var lastPossibleDay: LocalDate,
+
+    @Column
+    var photoUrl: String? = null,
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    var type: ItemType? = null,
 
     @Transient
-    val day: Int? = null
-) {
+    val day: Int? = null,
+
+    ) {
+
+    fun computeRecurringDays(): List<WeekDay> {
+        val recurringDaysList = mutableListOf<Int>()
+        var temp = recurringDays
+        while (temp > 0) {
+            val day = temp and -temp
+            recurringDaysList.add(day)
+            temp = temp and (temp - 1)
+        }
+        return recurringDaysList.mapNotNull { WeekDay.from(it) }
+
+    }
 
     fun computeDay(): Int = when (day) {
         0 -> WeekDay.MONDAY.value

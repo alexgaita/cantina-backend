@@ -5,5 +5,9 @@ enum class WeekDay(val value: Int) {
     TUESDAY(2),
     WEDNESDAY(4),
     THURSDAY(8),
-    FRIDAY(16),
+    FRIDAY(16);
+
+    companion object {
+        infix fun from(value: Int): WeekDay? = WeekDay.entries.firstOrNull { it.value == value }
+    }
 }
