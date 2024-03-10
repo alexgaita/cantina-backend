@@ -1,5 +1,6 @@
 package com.example.cantinabackend.web
 
+import com.example.cantinabackend.domain.dtos.AddressDto
 import com.example.cantinabackend.domain.dtos.PermissionDto
 import com.example.cantinabackend.domain.dtos.UserChangeDto
 import com.example.cantinabackend.domain.dtos.UserDto
@@ -20,6 +21,12 @@ class UserController(
 
     @GetMapping("/permissions")
     override fun getUserPermissions(): PermissionDto = userService.getAllUserPermissions()
+
+    @DeleteMapping("/address/{addressId}")
+    fun deleteUserAddress(@PathVariable addressId: Int) = userService.deleteUserAddress(addressId)
+
+    @PutMapping("/address")
+    fun createOrUpdateAddress(@RequestBody address: AddressDto) = userService.createOrUpdateAddress(address)
 
     @PutMapping()
     override fun changeUser(@RequestBody userChanges: UserChangeDto) = userService.changeUser(userChanges)

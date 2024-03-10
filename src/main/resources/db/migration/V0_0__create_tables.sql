@@ -64,8 +64,7 @@ CREATE TABLE IF NOT EXISTS address
     value      varchar(200) NOT NULL,
     user_id    varchar(36)  NOT NULL,
     is_current boolean      NOT NULL DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES user (id),
-    CONSTRAINT unique_current_address UNIQUE (user_id, is_current)
+    FOREIGN KEY (user_id) REFERENCES user (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = UTF8MB4;
 

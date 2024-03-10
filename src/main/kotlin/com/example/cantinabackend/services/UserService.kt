@@ -6,10 +6,13 @@ import com.example.cantinabackend.domain.dtos.AddressDto
 import com.example.cantinabackend.domain.dtos.PermissionDto
 import com.example.cantinabackend.domain.dtos.UserChangeDto
 import com.example.cantinabackend.domain.dtos.UserDto
+import com.example.cantinabackend.domain.entities.Address
 import com.example.cantinabackend.domain.entities.User
 import com.example.cantinabackend.domain.repositories.AddressRepository
 import com.example.cantinabackend.domain.repositories.UserRepository
 import jakarta.persistence.EntityNotFoundException
+import jakarta.persistence.LockModeType
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -36,7 +39,7 @@ class UserService(
                     it.value,
                     it.isCurrent
                 )
-            }
+            }.sortedByDescending { it.isCurrent }
         )
     }
 
@@ -52,7 +55,67 @@ class UserService(
         val user = userRepository.findByIdOrNull(securityAuthenticationService.getUserId())
             ?: throw EntityNotFoundException("User not found")
 
-        val currentAddresses = user.addresses
+        user.phoneNumber = userChanges.phoneNumber
+    }
+
+    @Transactional
+    @RequiredPermissions([Permission.NORMAL_USER])
+    fun deleteUserAddress(addressId: Int) {
+        val user = userRepository.findByIdOrNull(securityAuthenticationService.getUserId())
+            ?: throw EntityNotFoundException("User not found")
+
+        val address = addressRepository.findByIdOrNull(addressId)
+            ?: throw EntityNotFoundException("Address not found")
+
+        if (address.user.id != user.id) {
+            throw EntityNotFoundException("Address not found")
+        }
+
+        addressRepository.delete(address)
+    }
+
+    @Transactional
+    @RequiredPermissions([Permission.NORMAL_USER])
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    fun createOrUpdateAddress(address: AddressDto) {
+
+        val user = userRepository.findByIdOrNull(securityAuthenticationService.getUserId())
+            ?: throw EntityNotFoundException("User not found")
+
+        when {
+            address.id == 0 -> {
+
+                if (address.isCurrent) {
+                    addressRepository.setAllAddressesNotCurrent(user.id)
+                }
+
+                addressRepository.save(
+                    Address(
+                        address.value,
+                        address.isCurrent,
+                        user
+                    )
+                )
+            }
+
+            else -> {
+                val addressEntity = addressRepository.findByIdOrNull(address.id)
+                    ?: throw EntityNotFoundException("Address not found")
+
+                if (addressEntity.user.id != user.id) {
+                    throw EntityNotFoundException("Address doesn't belong to user")
+                }
+
+                if (address.isCurrent) {
+                    addressRepository.setAllAddressesNotCurrent(user.id)
+                }
+
+                addressEntity.value = address.value
+                addressEntity.isCurrent = address.isCurrent
+
+                addressRepository.save(addressEntity)
+            }
+        }
 
     }
 

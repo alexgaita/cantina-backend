@@ -1,12 +1,13 @@
 package com.example.cantinabackend.domain.dtos
 
 import com.example.cantinabackend.config.annotations.Permission
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import kotlinx.serialization.Serializable
 
 data class UserChangeDto(
-    val addresses: List<AddressDto>,
     @Size(min = 10, max = 10)
+    @Pattern(regexp = "^[0-9]+$", message = "Should only contain numeric characters")
     val phoneNumber: String
 )
 
