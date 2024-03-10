@@ -31,7 +31,7 @@ spring:
     azure:
       storage:
         account-name: licentagaitacantina
-        account-key: a0VpCpfFKeSaXQvMAFR8oBZGYSiPWg9IXpAh0N5Dp8cxA+dSHGy7jD0qIiuiF5yHau9+UPQpmRqY+ASttntY+Q==
+        account-key: ${SECRET_BLOB_KEY}
         blob:
           container-name: menuimage
 

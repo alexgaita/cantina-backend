@@ -3,6 +3,7 @@ package com.example.cantinabackend.web
 import com.example.cantinabackend.config.annotations.Permission
 import com.example.cantinabackend.config.annotations.RequiredPermissions
 import com.example.cantinabackend.domain.dtos.MenuItemDto
+import com.example.cantinabackend.domain.dtos.MenuItemEditDto
 import com.example.cantinabackend.domain.dtos.MenuListDto
 import com.example.cantinabackend.domain.dtos.MissingContainersDto
 import com.example.cantinabackend.services.MenuItemService
@@ -27,11 +28,16 @@ class MenuController(
 
     @GetMapping("/menu/{id}")
     @RequiredPermissions([Permission.ADMIN])
-    override fun getMenuById(@PathVariable id: String): MenuItemDto = menuItemService.getMenuItemById(id)
+    override fun getMenuById(@PathVariable id: String): MenuItemEditDto = menuItemService.getMenuItemById(id)
 
     @PutMapping("/menu")
     @RequiredPermissions([Permission.ADMIN])
-    override fun changeMenuItem(@RequestBody menuItemDto: MenuItemDto) = menuItemService.changeMenuItem(menuItemDto)
+    override fun createOrUpdateMenuItem(@RequestBody menuItemDto: MenuItemDto) =
+        menuItemService.createOrUpdateMenuItem(menuItemDto)
+
+    @DeleteMapping("/menu/{id}")
+    @RequiredPermissions([Permission.ADMIN])
+    override fun deleteMenuItem(@PathVariable id: String) = menuItemService.deleteMenuItem(id)
 
     @PostMapping("/upload", consumes = ["multipart/form-data"])
     @RequiredPermissions([Permission.ADMIN])

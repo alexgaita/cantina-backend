@@ -1,9 +1,9 @@
 package com.example.cantinabackend.domain.dtos
 
-import com.example.cantinabackend.domain.entities.Container
-import com.example.cantinabackend.domain.entities.MenuItem
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class MissingContainersDto(
-    val containers: List<Container>,
-    val items: List<MenuItem>,
+    val containers: List<String>,
+    val items: List<MenuItemDto>,
 )

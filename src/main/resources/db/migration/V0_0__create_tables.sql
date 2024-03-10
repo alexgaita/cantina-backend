@@ -60,10 +60,12 @@ CREATE TABLE IF NOT EXISTS user
 
 CREATE TABLE IF NOT EXISTS address
 (
-    id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    value   varchar(200) NOT NULL,
-    user_id varchar(36)  NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user (id)
+    id         INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    value      varchar(200) NOT NULL,
+    user_id    varchar(36)  NOT NULL,
+    is_current boolean      NOT NULL DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES user (id),
+    CONSTRAINT unique_current_address UNIQUE (user_id, is_current)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = UTF8MB4;
 

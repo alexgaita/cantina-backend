@@ -1,10 +1,13 @@
 package com.example.cantinabackend.services
 
 import com.example.cantinabackend.domain.dtos.MenuItemDto
+import com.example.cantinabackend.domain.dtos.MenuItemEditDto
 import com.example.cantinabackend.domain.dtos.MenuListDto
 import com.example.cantinabackend.domain.dtos.mappers.toDto
+import com.example.cantinabackend.domain.dtos.mappers.toEntity
 import com.example.cantinabackend.domain.dtos.mappers.toViewDto
 import com.example.cantinabackend.domain.entities.ItemType
+import com.example.cantinabackend.domain.entities.MenuItem
 import com.example.cantinabackend.domain.enums.WeekDay
 import com.example.cantinabackend.domain.repositories.ContainerRepository
 import com.example.cantinabackend.domain.repositories.MenuItemRepository
@@ -38,16 +41,53 @@ class MenuItemService(
     }
 
     @Transactional(readOnly = true)
-    fun getMenuItemById(id: String): MenuItemDto {
+    fun getMenuItemById(id: String): MenuItemEditDto {
         val menuItem = menuItemRepository.findByIdOrNull(id) ?: throw EntityNotFoundException("Menu not found")
-        return menuItem.toDto()
+
+        return MenuItemEditDto(menuItem.toDto(), containerRepository.findAll().map { it.name })
     }
 
     @Transactional
-    fun changeMenuItem(menuItemDto: MenuItemDto) {
-        val menuItem =
-            menuItemRepository.findByIdOrNull(menuItemDto.name) ?: throw EntityNotFoundException("Menu not found")
+    fun createOrUpdateMenuItem(menuItemDto: MenuItemDto) {
 
+        if (menuItemDto.name.isBlank()) {
+            throw IllegalArgumentException("Name cannot be empty")
+        }
+
+        if (menuItemDto.recurringDays.isEmpty()) {
+            throw IllegalArgumentException("Recurring days cannot be empty")
+        }
+
+        if (menuItemDto.firstPossibleDay.isAfter(menuItemDto.lastPossibleDay)) {
+            throw IllegalArgumentException("First possible day cannot be after last possible day")
+        }
+
+        when (val menuItem =
+            menuItemRepository.findByIdOrNull(menuItemDto.name)) {
+            null -> createMenuItem(menuItemDto)
+            else -> updateMenuItem(menuItem, menuItemDto)
+        }
+
+    }
+
+    @Transactional
+    fun deleteMenuItem(id: String) {
+        val menuItem = menuItemRepository.findByIdOrNull(id) ?: throw EntityNotFoundException("Menu not found")
+        menuItem.containers.clear()
+        menuItemRepository.deleteById(id)
+    }
+
+    private fun createMenuItem(menuItemDto: MenuItemDto) {
+        logger.info { "Creating menu item: $menuItemDto" }
+
+        val menuItem = menuItemDto.toEntity(containerRepository.findAllById(menuItemDto.containers))
+
+        menuItemRepository.save(menuItem)
+
+        logger.info { "Created menu item: $menuItem success" }
+    }
+
+    private fun updateMenuItem(menuItem: MenuItem, menuItemDto: MenuItemDto) {
         logger.info { "Updating menu item: $menuItem" }
 
         menuItem.servingSize = menuItemDto.servingSize

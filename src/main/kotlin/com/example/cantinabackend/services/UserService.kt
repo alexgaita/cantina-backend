@@ -2,9 +2,10 @@ package com.example.cantinabackend.services
 
 import com.example.cantinabackend.config.annotations.Permission
 import com.example.cantinabackend.config.annotations.RequiredPermissions
+import com.example.cantinabackend.domain.dtos.AddressDto
 import com.example.cantinabackend.domain.dtos.PermissionDto
 import com.example.cantinabackend.domain.dtos.UserChangeDto
-import com.example.cantinabackend.domain.entities.Address
+import com.example.cantinabackend.domain.dtos.UserDto
 import com.example.cantinabackend.domain.entities.User
 import com.example.cantinabackend.domain.repositories.AddressRepository
 import com.example.cantinabackend.domain.repositories.UserRepository
@@ -22,10 +23,21 @@ class UserService(
 
     @RequiredPermissions([Permission.NORMAL_USER])
     @Transactional
-    fun findUserOrCreate(): User {
+    fun findUserOrCreate(): UserDto {
         val userId = securityAuthenticationService.getUserId()
 
-        return userRepository.findByIdOrNull(userId) ?: User(userId, null).also { userRepository.save(it) }
+        val user = userRepository.findByIdOrNull(userId) ?: User(userId, null).also { userRepository.save(it) }
+
+        return UserDto(
+            user.phoneNumber,
+            user.addresses.map {
+                AddressDto(
+                    it.id,
+                    it.value,
+                    it.isCurrent
+                )
+            }
+        )
     }
 
     @RequiredPermissions([Permission.NORMAL_USER])
@@ -42,21 +54,6 @@ class UserService(
 
         val currentAddresses = user.addresses
 
-        val newAddresses = userChanges.addresses.map {
-            val address = currentAddresses.find { address -> address.id == it.id } ?: Address(
-                it.value,
-                user
-            )
-            address.value = it.value
-            address
-        }
-
-        user.addresses.clear()
-        user.addresses.addAll(newAddresses)
-
-        user.phoneNumber = userChanges.phoneNumber
-
-        userRepository.save(user)
     }
 
 }

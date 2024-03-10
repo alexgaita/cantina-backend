@@ -3,7 +3,6 @@
 package com.example.cantinabackend.domain.dtos
 
 import com.example.cantinabackend.domain.dtos.serializers.LocalDateSerializer
-import com.example.cantinabackend.domain.entities.MenuItem
 import com.example.cantinabackend.domain.enums.WeekDay
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -14,9 +13,9 @@ data class MenuListDto(
     val items: List<MenuItemViewDto>
 )
 
+@Serializable
 data class MenuItemEditDto(
-    val menuItem: MenuItem,
-    val recurringDays: List<WeekDay>,
+    val menuItem: MenuItemDto,
     val possibleContainers: List<String>
 )
 

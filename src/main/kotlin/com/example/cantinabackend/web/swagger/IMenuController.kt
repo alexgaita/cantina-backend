@@ -1,6 +1,7 @@
 package com.example.cantinabackend.web.swagger
 
 import com.example.cantinabackend.domain.dtos.MenuItemDto
+import com.example.cantinabackend.domain.dtos.MenuItemEditDto
 import com.example.cantinabackend.domain.dtos.MenuListDto
 import com.example.cantinabackend.domain.dtos.MissingContainersDto
 import io.swagger.v3.oas.annotations.Operation
@@ -72,16 +73,16 @@ interface IMenuController {
                 )]
         )
     )
-    fun getMenuById(@PathVariable id: String): MenuItemDto
+    fun getMenuById(@PathVariable id: String): MenuItemEditDto
 
     @Operation(
-        summary = "Edit Menu Item",
+        summary = "Create or Update Menu Item",
         security = [SecurityRequirement(name = "bearer-key")]
     )
     @ApiResponses(
         ApiResponse(
             responseCode = "200",
-            description = "Menu Item successfully edited.",
+            description = "Menu Item successfully created or updated.",
             content = [
                 Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -91,5 +92,24 @@ interface IMenuController {
                 )]
         )
     )
-    fun changeMenuItem(menuItemDto: MenuItemDto)
+    fun createOrUpdateMenuItem(menuItemDto: MenuItemDto)
+
+    @Operation(
+        summary = "Delete Menu Item",
+        security = [SecurityRequirement(name = "bearer-key")]
+    )
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "Menu Item successfully deleted.",
+            content = [
+                Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = Schema(
+                        implementation = Unit::class
+                    )
+                )]
+        )
+    )
+    fun deleteMenuItem(@PathVariable id: String)
 }

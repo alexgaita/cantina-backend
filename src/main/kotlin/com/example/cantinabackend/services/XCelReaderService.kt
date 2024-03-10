@@ -1,6 +1,7 @@
 package com.example.cantinabackend.services
 
 import com.example.cantinabackend.domain.dtos.MissingContainersDto
+import com.example.cantinabackend.domain.dtos.mappers.toDto
 import com.example.cantinabackend.domain.entities.Container
 import com.example.cantinabackend.domain.entities.ItemType
 import com.example.cantinabackend.domain.entities.MenuItem
@@ -51,7 +52,7 @@ class XCelReaderService(
         val itemsWithoutContainers = savedItems.filter { it.containers.isEmpty() }
         val containers = containerRepository.findAll()
 
-        return MissingContainersDto(containers, itemsWithoutContainers)
+        return MissingContainersDto(containers.map { it.name }, itemsWithoutContainers.map { it.toDto() })
     }
 
     private fun readMenuInterval(sheet: Sheet): Pair<LocalDate, LocalDate> {
@@ -112,7 +113,7 @@ class XCelReaderService(
 
                 val description = row.getCell(menuColumn).stringCellValue
                 if (description.isEmpty()) return@forEach
-                menuDescription += "${description.trimEnd().trimStart()}/"
+                menuDescription += "${description.trimEnd().trimStart()},"
             }
 
             dailyMenuItems.add(
@@ -206,7 +207,7 @@ class XCelReaderService(
     ): List<Container> = (31..36).toList().map { rowNumber ->
         val row = sheet.getRow(rowNumber)
 
-        val containerName = row.getCell(1).stringCellValue
+        val containerName = row.getCell(1).stringCellValue.trimEnd().trimStart()
         val containerPrice = handleGetPrice(row.getCell(2))
 
         Container(
@@ -235,7 +236,8 @@ class XCelReaderService(
                     firstPossibleDay = firstItem.firstPossibleDay,
                     lastPossibleDay = firstItem.lastPossibleDay,
                     recurringDays = recurringDays,
-                    type = actualItems[keyValuePair.key]?.type,
+                    photoUrl = actualItems[keyValuePair.key]?.photoUrl ?: firstItem.photoUrl,
+                    type = actualItems[keyValuePair.key]?.type ?: firstItem.type,
                 )
             }
         }

@@ -8,6 +8,9 @@ class Address(
     @Column
     var value: String,
 
+    @Column
+    var isCurrent: Boolean = false,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User

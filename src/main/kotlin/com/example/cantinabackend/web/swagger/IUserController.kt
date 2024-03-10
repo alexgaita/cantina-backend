@@ -2,7 +2,7 @@ package com.example.cantinabackend.web.swagger
 
 import com.example.cantinabackend.domain.dtos.PermissionDto
 import com.example.cantinabackend.domain.dtos.UserChangeDto
-import com.example.cantinabackend.domain.entities.User
+import com.example.cantinabackend.domain.dtos.UserDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -29,12 +29,12 @@ interface IUserController {
                 Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = Schema(
-                        implementation = User::class
+                        implementation = UserDto::class
                     )
                 )]
         )
     )
-    fun getUser(): User
+    fun getUser(): UserDto
 
     @Operation(
         summary = "Fetch the permissions of the currently logged in user",
