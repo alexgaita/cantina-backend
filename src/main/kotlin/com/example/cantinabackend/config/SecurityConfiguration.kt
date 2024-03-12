@@ -24,9 +24,10 @@ class SecurityConfig {
                 authorize("/swagger-ui/**", permitAll)
                 authorize("/swagger-ui.html/**", permitAll)
                 authorize("/api-docs/**", permitAll)
+                authorize("*/webhook", permitAll)
                 authorize(anyRequest, authenticated)
             }
-//            csrf { disable() }
+            csrf { disable() }
             oauth2ResourceServer {
                 jwt { }
             }

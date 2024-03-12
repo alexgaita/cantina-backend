@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class SecurityAuthenticationService {
+class SecurityAuthenticationService(
+) {
 
     fun getUserId(): UUID {
         return UUID.fromString(getClaim("oid"))

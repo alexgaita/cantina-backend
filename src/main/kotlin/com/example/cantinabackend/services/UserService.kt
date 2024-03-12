@@ -43,6 +43,13 @@ class UserService(
         )
     }
 
+    @Transactional
+    @RequiredPermissions([Permission.NORMAL_USER])
+    fun findUser(): User {
+        return userRepository.findByIdOrNull(securityAuthenticationService.getUserId())
+            ?: throw EntityNotFoundException("User not found")
+    }
+
     @RequiredPermissions([Permission.NORMAL_USER])
     @Transactional(readOnly = true)
     fun getAllUserPermissions(): PermissionDto {

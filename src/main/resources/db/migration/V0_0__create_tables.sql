@@ -30,27 +30,6 @@ CREATE TABLE IF NOT EXISTS menu_item_containers
 ) ENGINE = InnoDB
   DEFAULT CHARSET = UTF8MB4;
 
-CREATE TABLE IF NOT EXISTS cantina_order
-(
-    id          INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    total_price DECIMAL(10, 2) NOT NULL DEFAULT 0,
-    created_at  datetime                DEFAULT NULL,
-    status      varchar(20)    NOT NULL DEFAULT 'CREATED'
-) ENGINE = InnoDB
-  DEFAULT CHARSET = UTF8MB4;
-
-CREATE TABLE IF NOT EXISTS order_item
-(
-    id               INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    cantina_order_id INT            NOT NULL,
-    menu_item_name   varchar(50)    NOT NULL,
-    quantity         int            NOT NULL DEFAULT 1,
-    price            DECIMAL(10, 2) NOT NULL DEFAULT 0,
-    FOREIGN KEY (cantina_order_id) REFERENCES cantina_order (id),
-    FOREIGN KEY (menu_item_name) REFERENCES menu_item (name)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = UTF8MB4;
-
 CREATE TABLE IF NOT EXISTS user
 (
     id           varchar(36) NOT NULL PRIMARY KEY,
@@ -67,6 +46,35 @@ CREATE TABLE IF NOT EXISTS address
     FOREIGN KEY (user_id) REFERENCES user (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = UTF8MB4;
+
+CREATE TABLE IF NOT EXISTS cantina_order
+(
+    id             INT                                                                   NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    total_price    DECIMAL(10, 2)                                                        NOT NULL DEFAULT 0,
+    created_at     datetime                                                                       DEFAULT NULL,
+    status         ENUM ('CREATED','PAYMENT_REQUIRED','IN_PROGRESS','READY','DELIVERED') NOT NULL DEFAULT 'CREATED',
+    user_id        varchar(36)                                                           NOT NULL,
+    use_silverware boolean                                                                        DEFAULT FALSE,
+    payment_id     varchar(100)                                                                   DEFAULT NULL,
+    description    varchar(200)                                                                   DEFAULT NULL,
+    address_id     INT                                                                   NOT NULL,
+    FOREIGN KEY (address_id) REFERENCES address (id),
+    FOREIGN KEY (user_id) REFERENCES user (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = UTF8MB4;
+
+CREATE TABLE IF NOT EXISTS order_item
+(
+    id               INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    cantina_order_id INT            NOT NULL,
+    menu_item_name   varchar(50)    NOT NULL,
+    quantity         int            NOT NULL DEFAULT 1,
+    price            DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    FOREIGN KEY (cantina_order_id) REFERENCES cantina_order (id),
+    FOREIGN KEY (menu_item_name) REFERENCES menu_item (name)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = UTF8MB4;
+
 
 
 

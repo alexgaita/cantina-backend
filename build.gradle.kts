@@ -28,6 +28,8 @@ dependencies {
     implementation("com.azure.spring:spring-cloud-azure-dependencies:5.10.0")
     implementation("com.azure.spring:spring-cloud-azure-starter-storage-blob:5.10.0")
 
+    implementation("com.stripe:stripe-java:24.19.0")
+
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

@@ -50,6 +50,11 @@ server:
       force-response: true
 
 
+stripe:
+  api:
+    key: ${STRIPE_SECRET_KEY}
+    webhook:
+      secret: ${WEBHOOK_SECRET}
 
 springdoc:
   packagesToScan: com.example.cantinabackend.web

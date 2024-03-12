@@ -8,6 +8,7 @@ data class OrderCreateDto(
     val comment: String?,
     val discountIds: List<String>,
     val wantSilverware: Boolean,
+    val byCard: Boolean
 )
 
 @Serializable
@@ -15,3 +16,4 @@ data class OrderItemCreateDto(
     val productId: String,
     val quantity: Int
 )
+
