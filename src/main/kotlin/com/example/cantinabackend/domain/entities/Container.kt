@@ -5,10 +5,10 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 
 @Entity
-class Container (
+class Container(
     @Id
     val name: String,
 
     @Column(columnDefinition = "DECIMAL(4,2)")
-    val price : Double,
+    val price: Double,
 )

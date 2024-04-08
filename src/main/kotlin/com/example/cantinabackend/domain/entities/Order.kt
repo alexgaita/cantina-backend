@@ -8,10 +8,12 @@ enum class OrderStatus {
     CREATED,
     PAYMENT_REQUIRED,
     IN_PROGRESS,
+    READY,
     DELIVERED
 }
 
-@Entity(name = "cantina_order")
+@Entity
+@Table(name = "cantina_order")
 class Order(
 
     @Column(columnDefinition = "DECIMAL(4,2)")
@@ -43,9 +45,15 @@ class Order(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
-    var address: Address
+    var address: Address,
 
-) {
+    @OneToMany(mappedBy = "order", orphanRemoval = true)
+    val cartele: MutableSet<Cartela> = mutableSetOf(),
+
+    @Column
+    var phoneNumber: String,
+
+    ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0

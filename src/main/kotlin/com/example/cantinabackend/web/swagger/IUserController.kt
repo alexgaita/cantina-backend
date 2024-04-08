@@ -1,5 +1,6 @@
 package com.example.cantinabackend.web.swagger
 
+import com.example.cantinabackend.domain.dtos.CartelaOrderDto
 import com.example.cantinabackend.domain.dtos.PermissionDto
 import com.example.cantinabackend.domain.dtos.UserChangeDto
 import com.example.cantinabackend.domain.dtos.UserDto
@@ -72,4 +73,24 @@ interface IUserController {
         )
     )
     fun changeUser(@RequestBody @Valid userChanges: UserChangeDto): Unit
+
+    @Operation(
+        summary = "Buy discounts for user",
+        security = [SecurityRequirement(name = "bearer-key")]
+    )
+    @ApiResponses(
+        ApiResponse(
+            responseCode = "200",
+            description = "User discount order placed successfully.",
+            content = [
+                Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = Schema(
+                        implementation = String::class
+                    )
+                )]
+        )
+    )
+    fun buyDiscounts(@RequestBody discountOrder: CartelaOrderDto): String
+
 }

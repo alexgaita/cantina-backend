@@ -5,6 +5,18 @@ spring:
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
 
+  mail:
+    host: smtp.sendgrid.net
+    port: 587
+    username: apikey
+    password: ${SENDGRID_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -34,7 +46,7 @@ spring:
         account-key: ${SECRET_BLOB_KEY}
         blob:
           container-name: menuimage
-
+  
   
   security:
     oauth2:

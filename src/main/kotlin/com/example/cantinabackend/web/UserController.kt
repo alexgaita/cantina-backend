@@ -1,9 +1,6 @@
 package com.example.cantinabackend.web
 
-import com.example.cantinabackend.domain.dtos.AddressDto
-import com.example.cantinabackend.domain.dtos.PermissionDto
-import com.example.cantinabackend.domain.dtos.UserChangeDto
-import com.example.cantinabackend.domain.dtos.UserDto
+import com.example.cantinabackend.domain.dtos.*
 import com.example.cantinabackend.services.UserService
 import com.example.cantinabackend.web.swagger.IUserController
 import org.springframework.validation.annotation.Validated
@@ -30,5 +27,9 @@ class UserController(
 
     @PutMapping()
     override fun changeUser(@RequestBody userChanges: UserChangeDto) = userService.changeUser(userChanges)
+
+    @PostMapping("/discounts")
+    override fun buyDiscounts(@RequestBody discountOrder: CartelaOrderDto): String =
+        userService.placeOrderForDiscounts(discountOrder)
 
 }

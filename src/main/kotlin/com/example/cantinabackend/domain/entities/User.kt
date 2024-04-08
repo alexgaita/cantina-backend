@@ -17,8 +17,12 @@ class User(
 
     @Column
     var phoneNumber: String?,
+    @Column
+    val name: String,
+    @Column
+    val email: String,
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
-    val addresses: MutableSet<Address> = mutableSetOf()
+    val addresses: MutableSet<Address> = mutableSetOf(),
 
-)
+    )

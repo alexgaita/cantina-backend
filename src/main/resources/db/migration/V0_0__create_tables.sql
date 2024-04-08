@@ -33,7 +33,9 @@ CREATE TABLE IF NOT EXISTS menu_item_containers
 CREATE TABLE IF NOT EXISTS user
 (
     id           varchar(36) NOT NULL PRIMARY KEY,
-    phone_number varchar(10) DEFAULT NULL
+    phone_number varchar(10)  DEFAULT NULL,
+    name         varchar(50)  DEFAULT NULL,
+    email        varchar(100) DEFAULT NULL
 ) ENGINE = InnoDB
   DEFAULT CHARSET = UTF8MB4;
 
@@ -58,6 +60,7 @@ CREATE TABLE IF NOT EXISTS cantina_order
     payment_id     varchar(100)                                                                   DEFAULT NULL,
     description    varchar(200)                                                                   DEFAULT NULL,
     address_id     INT                                                                   NOT NULL,
+    phone_number   varchar(15)                                                           NOT NULL,
     FOREIGN KEY (address_id) REFERENCES address (id),
     FOREIGN KEY (user_id) REFERENCES user (id)
 ) ENGINE = InnoDB
@@ -74,6 +77,19 @@ CREATE TABLE IF NOT EXISTS order_item
     FOREIGN KEY (menu_item_name) REFERENCES menu_item (name)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = UTF8MB4;
+
+CREATE TABLE IF NOT EXISTS cartela
+(
+    id        varchar(36)   NOT NULL PRIMARY KEY,
+    user_id   varchar(36)   NOT NULL,
+    value     DECIMAL(4, 2) NOT NULL,
+    is_active boolean       NOT NULL DEFAULT 1,
+    order_id  INT                    DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (order_id) REFERENCES cantina_order (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = UTF8MB4;
+
 
 
 

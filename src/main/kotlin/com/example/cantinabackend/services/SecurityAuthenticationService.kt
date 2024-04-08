@@ -15,6 +15,14 @@ class SecurityAuthenticationService(
         return UUID.fromString(getClaim("oid"))
     }
 
+    fun getUserName(): String {
+        return getClaim("name")
+    }
+
+    fun getUserEmail(): String {
+        return getClaim("preferred_username")
+    }
+
     fun getUserPermissions(): List<Permission> {
         val groups = getGroups()
         return groups.map { Permission.from(it) }.filter { it != Permission.MISSING_PERMISSION }

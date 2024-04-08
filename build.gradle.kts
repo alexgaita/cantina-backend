@@ -24,7 +24,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-web")
-
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
+    implementation("org.thymeleaf:thymeleaf-spring5:3.1.2.RELEASE")
+    
     implementation("com.azure.spring:spring-cloud-azure-dependencies:5.10.0")
     implementation("com.azure.spring:spring-cloud-azure-starter-storage-blob:5.10.0")
 
