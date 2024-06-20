@@ -115,11 +115,9 @@ class UserService(
 
         when {
             address.id == 0 -> {
-
                 if (address.isCurrent) {
                     addressRepository.setAllAddressesNotCurrent(user.id)
                 }
-
                 addressRepository.save(
                     Address(
                         address.value,
@@ -132,18 +130,14 @@ class UserService(
             else -> {
                 val addressEntity = addressRepository.findByIdOrNull(address.id)
                     ?: throw EntityNotFoundException("Address not found")
-
                 if (addressEntity.user.id != user.id) {
                     throw EntityNotFoundException("Address doesn't belong to user")
                 }
-
                 if (address.isCurrent) {
                     addressRepository.setAllAddressesNotCurrent(user.id)
                 }
-
                 addressEntity.value = address.value
                 addressEntity.isCurrent = address.isCurrent
-
                 addressRepository.save(addressEntity)
             }
         }

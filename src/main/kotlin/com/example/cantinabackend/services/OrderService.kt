@@ -9,6 +9,7 @@ import com.example.cantinabackend.domain.entities.OrderStatus
 import com.example.cantinabackend.domain.repositories.CartelaRepository
 import com.example.cantinabackend.domain.repositories.MenuItemRepository
 import com.example.cantinabackend.domain.repositories.OrderRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -108,7 +109,7 @@ class OrderService(
     @Transactional
     @RequiredPermissions([Permission.NORMAL_USER])
     fun confirmOrderDetails(orderId: Int, address: Int, phoneNumber: String) {
-        val order = orderRepository.findById(orderId).orElseThrow { IllegalStateException("Order not found") }
+        val order = orderRepository.findByIdOrNull(orderId) ?: throw IllegalStateException("Order not found")
 
         val actualAddress =
             order.user.addresses.find { it.id == address } ?: throw IllegalStateException("Address not found")
@@ -199,7 +200,6 @@ class OrderService(
                 )
             }.sortedByDescending { it.createdAt }
         }
-
         return OrdersByDateDto(ordersMappedByDay)
     }
 

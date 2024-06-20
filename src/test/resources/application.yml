@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:mydb
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  cloud:
+    azure:
+      storage:
+        account-name: licentagaitacantina
+        account-key: password
+        blob:
+          container-name: menuimage
+
+  mail:
+    host: smtp.sendgrid.net
+    port: 587
+    username: apikey
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/${TENANT_ID}/v2.0
+stripe:
+  api:
+    key: test
+    webhook:
+      secret: test_secret

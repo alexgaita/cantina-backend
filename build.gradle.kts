@@ -27,7 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("org.thymeleaf:thymeleaf-spring5:3.1.2.RELEASE")
-    
+
     implementation("com.azure.spring:spring-cloud-azure-dependencies:5.10.0")
     implementation("com.azure.spring:spring-cloud-azure-starter-storage-blob:5.10.0")
 
@@ -43,6 +43,7 @@ dependencies {
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
 
